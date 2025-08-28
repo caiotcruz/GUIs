@@ -1,136 +1,118 @@
-// 1.2.2 - Faça um desenho qualquer usando a biblioteca SDL2_gfx, com figuras mais complexas. 
-//Estrela regular de 5 pontas girando e pulsando. Cada ponta é a junção da cor de suas arestas. O centro é a junção das cores das pontas.
+// 1.2.2 - Foguete animado com balanço e estrelas em movimento
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
 
-#define PI 3.14159265
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+#define NUM_STARS 200
+#define SPEED 10           // pixels/segundo
+#define SWAY_AMPLITUDE 30  // amplitude do balanço
+#define SWAY_SPEED 2       // frequência do balanço
+
+typedef struct {
+    int x, y, r;
+} Star;
 
 int main(int argc, char* args[])
 {
-    /* INICIALIZACAO */
-    SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_Window* win = SDL_CreateWindow("Estrela Colorida Animada",
+    /* INICIALIZAÇÃO */
+    srand(time(NULL));
+    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Window* win = SDL_CreateWindow("Foguete Animado com Balanço",
                                        SDL_WINDOWPOS_UNDEFINED,
                                        SDL_WINDOWPOS_UNDEFINED,
-                                       1280, 640,
+                                       SCREEN_WIDTH, SCREEN_HEIGHT,
                                        SDL_WINDOW_SHOWN);
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 
-    srand(time(NULL));
+    // Criar estrelas
+    Star stars[NUM_STARS];
+    for(int i=0; i<NUM_STARS; i++){
+        stars[i].x = rand() % SCREEN_WIDTH;
+        stars[i].y = rand() % SCREEN_HEIGHT;
+        stars[i].r = 1 + rand()%2;
+    }
 
-    int running = 1;
+    int rocketY = 200;      // posição vertical fixa
+    float swayTime = 0.0f;  // tempo acumulado para balanço
+
+    int quit = 0;
     SDL_Event e;
-    double angle = 0.0;
-    double pulse = 1.0;
-    int pulseDir = 1;
+    Uint32 lastTime = SDL_GetTicks();
 
-    // Centro da estrela
-    int cx = 640;
-    int cy = 310;
+    /* EXECUÇÃO */
+    while(!quit){
 
-    // Raios da estrela
-    double R_outer = 150;
-    double R_inner = 60;
-
-    // Cores das linhas
-    SDL_Color colors[5] = {
-        {0, 0, 255, 255},    // azul
-        {255, 0, 0, 255},    // vermelho
-        {0, 255, 0, 255},    // verde
-        {255, 255, 0, 255},  // amarelo
-        {255, 0, 255, 255}   // magenta
-    };
-
-    while (running) {
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) running = 0;
+        // ======= EVENTOS =======
+        while(SDL_PollEvent(&e)){
+            if(e.type == SDL_QUIT) quit = 1;
         }
 
-        // Fundo preto
+        // ======= TEMPO =======
+        Uint32 currentTime = SDL_GetTicks();
+        float deltaTime = (currentTime - lastTime) / 1000.0f;
+        lastTime = currentTime;
+        swayTime += deltaTime;
+
+        // Movimento do balanço do foguete
+        int rocketX = SCREEN_WIDTH/2 + SWAY_AMPLITUDE * sinf(swayTime * SWAY_SPEED);
+
+        // Atualizar estrelas
+        for(int i=0; i<NUM_STARS; i++){
+            stars[i].y += SPEED * deltaTime * 50;
+            if(stars[i].y > SCREEN_HEIGHT){
+                stars[i].y = 0;
+                stars[i].x = rand() % SCREEN_WIDTH;
+            }
+        }
+
+        // ======= RENDERIZAÇÃO =======
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
 
-        // Estrelas de fundo
-        for (int i = 0; i < 30; i++) {
-            int x = rand() % 1280;
-            int y = rand() % 640;
-            int r = rand() % 3 + 1;
-            filledCircleRGBA(ren, x, y, r, 255, 255, 0, 255);
+        // Estrelas
+        for(int i=0; i<NUM_STARS; i++){
+            filledCircleRGBA(ren, stars[i].x, stars[i].y, stars[i].r, 255, 255, 0, 255);
         }
 
-        // Calcula vértices externos e internos
-        double outerX[5], outerY[5];
-        double innerX[5], innerY[5];
+        // Corpo do foguete
+        boxRGBA(ren, rocketX-50, rocketY, rocketX+50, rocketY+250, 255, 255, 255, 255);
 
-        for (int i = 0; i < 5; i++) {
-            double theta_outer = i * 2.0 * PI / 5.0 - PI / 2;
-            double theta_inner = theta_outer + PI / 5.0;
+        // Ponta do foguete
+        Sint16 vx[3] = {rocketX-50, rocketX+50, rocketX};
+        Sint16 vy[3] = {rocketY, rocketY, rocketY-80};
+        filledPolygonRGBA(ren, vx, vy, 3, 255, 0, 0, 255);
 
-            outerX[i] = cx + cos(theta_outer + angle) * R_outer * pulse;
-            outerY[i] = cy + sin(theta_outer + angle) * R_outer * pulse;
+        // Asas
+        Sint16 vx2[3] = {rocketX-50, rocketX-100, rocketX-50};
+        Sint16 vy2[3] = {rocketY+100, rocketY+250, rocketY+250};
+        filledPolygonRGBA(ren, vx2, vy2, 3, 180, 180, 180, 255);
 
-            innerX[i] = cx + cos(theta_inner + angle) * R_inner * pulse;
-            innerY[i] = cy + sin(theta_inner + angle) * R_inner * pulse;
-        }
+        Sint16 vx3[3] = {rocketX+50, rocketX+100, rocketX+50};
+        Sint16 vy3[3] = {rocketY+100, rocketY+250, rocketY+250};
+        filledPolygonRGBA(ren, vx3, vy3, 3, 180, 180, 180, 255);
 
-        // Pentágono central - Junção das cores das pontas.
-        int rx = 0, gx = 0, bx = 0;
-        for (int i = 0; i < 5; i++) {
-            rx += colors[i].r;
-            gx += colors[i].g;
-            bx += colors[i].b;
-        }
-        rx /= 5; gx /= 5; bx /= 5;
+        // Chamas
+        Sint16 vx4[3] = {rocketX-40, rocketX+40, rocketX};
+        Sint16 vy4[3] = {rocketY+250, rocketY+250, rocketY+320};
+        filledPolygonRGBA(ren, vx4, vy4, 3, 255, 140, 0, 255);
+        filledCircleRGBA(ren, rocketX, rocketY+310, 15, 255, 255, 0, 255);
 
-        Sint16 px[5], py[5];
-        for (int i = 0; i < 5; i++) {
-            px[i] = (Sint16)innerX[i];
-            py[i] = (Sint16)innerY[i];
-        }
-        filledPolygonRGBA(ren, px, py, 5, rx, gx, bx, 255);
-
-        // Preenche as 5 pontas da estrela
-        for (int i = 0; i < 5; i++) {
-            Sint16 tx[3], ty[3];
-
-            tx[0] = (Sint16)outerX[i];
-            ty[0] = (Sint16)outerY[i];
-            tx[1] = (Sint16)innerX[i];
-            ty[1] = (Sint16)innerY[i];
-            tx[2] = (Sint16)innerX[(i+4)%5];
-            ty[2] = (Sint16)innerY[(i+4)%5];
-
-            SDL_Color c1 = colors[i];
-            SDL_Color c2 = colors[(i+4)%5];
-            int r = (c1.r + c2.r) / 2;
-            int g = (c1.g + c2.g) / 2;
-            int b = (c1.b + c2.b) / 2;
-
-            filledPolygonRGBA(ren, tx, ty, 3, r, g, b, 255);
-        }
-
-        // Desenha as linhas da estrela
-        for (int i = 0; i < 5; i++) {
-            int next = (i + 2) % 5;
-            aalineRGBA(ren, (int)outerX[i], (int)outerY[i],
-                       (int)outerX[next], (int)outerY[next],
-                       colors[i].r, colors[i].g, colors[i].b, colors[i].a);
-        }
+        // Janela
+        filledCircleRGBA(ren, rocketX, rocketY+80, 40, 0, 100, 255, 255);
+        circleRGBA(ren, rocketX, rocketY+80, 40, 255, 255, 255, 255);
 
         SDL_RenderPresent(ren);
-        SDL_Delay(50);
 
-        // Atualiza ângulo e pulso
-        angle += 0.05;
-        pulse += 0.01 * pulseDir;
-        if (pulse > 1.2 || pulse < 0.8) pulseDir = -pulseDir;
+        SDL_Delay(16);  // ~60 FPS
     }
 
-    /* FINALIZACAO */
+    /* FINALIZAÇÃO */
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     SDL_Quit();
+    return 0;
 }
