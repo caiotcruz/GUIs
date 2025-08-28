@@ -1,4 +1,4 @@
-// 1.2.2 - Foguete animado com balanço e estrelas em movimento
+// 1.3.1 - - Faça uma animação em ciclo com algum padrão (ex, andar em círculo).
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <stdlib.h>
@@ -46,12 +46,12 @@ int main(int argc, char* args[])
     /* EXECUÇÃO */
     while(!quit){
 
-        // ======= EVENTOS =======
+        // Necessário para sair sem crashar
         while(SDL_PollEvent(&e)){
             if(e.type == SDL_QUIT) quit = 1;
         }
 
-        // ======= TEMPO =======
+        // Tempo
         Uint32 currentTime = SDL_GetTicks();
         float deltaTime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
@@ -69,7 +69,7 @@ int main(int argc, char* args[])
             }
         }
 
-        // ======= RENDERIZAÇÃO =======
+        // Render
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
 
