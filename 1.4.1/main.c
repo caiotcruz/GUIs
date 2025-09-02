@@ -1,4 +1,4 @@
-// 1.3.2 - Movendo retângulo + retângulos fixos com clique do mouse
+// 1.4.1
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 
