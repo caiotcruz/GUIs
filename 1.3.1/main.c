@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "../1.5.2/main.h"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -40,15 +41,16 @@ int main(int argc, char* args[])
     float swayTime = 0.0f;  // tempo acumulado para balanço
 
     int quit = 0;
-    SDL_Event e;
+    SDL_Event evt;
+    Uint32 timeout = 16;
     Uint32 lastTime = SDL_GetTicks();
 
     /* EXECUÇÃO */
     while(!quit){
 
         // Necessário para sair sem crashar
-        while(SDL_PollEvent(&e)){
-            if(e.type == SDL_QUIT) quit = 1;
+        if (AUX_WaitEventTimeout(&evt, &timeout)){
+            if(evt.type == SDL_QUIT) quit = 1;
         }
 
         // Tempo

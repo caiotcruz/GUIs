@@ -1,6 +1,7 @@
 // 1.4.1
 #include <SDL2/SDL.h>
 #include <stdlib.h>
+#include "../1.5.2/main.h"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -24,6 +25,7 @@ int main(int argc, char* args[])
 
     SDL_Event evt;
     int quit = 0;
+    Uint32 timeout = 16;
 
     SDL_Rect rectMain = { 100, 100, 50, 50 };
 
@@ -33,7 +35,7 @@ int main(int argc, char* args[])
     /* EXECUÇÃO */
     while (!quit) {
 
-        while(SDL_PollEvent(&evt)){
+        if (AUX_WaitEventTimeout(&evt, &timeout)){
             if(evt.type == SDL_QUIT) quit = 1;
 
             // Mouse

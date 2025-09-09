@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "../1.5.2/main.h"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -47,7 +48,9 @@ int main(int argc, char* args[])
     float swayTime = 0.0f;
 
     int quit = 0;
-    SDL_Event e;
+    SDL_Event evt;
+    Uint32 timeout = 16;
+
     Uint32 lastTime = SDL_GetTicks();
 
     // Estado do foguete
@@ -56,12 +59,12 @@ int main(int argc, char* args[])
 
     while(!quit){
 
-        while(SDL_PollEvent(&e)){
+        if (AUX_WaitEventTimeout(&evt, &timeout)) {
 
-            if(e.type == SDL_QUIT) quit = 1;
+            if(evt.type == SDL_QUIT) quit = 1;
 
             //Clique gera meteoro na coordenada X do mouse, Y=0 (Apenas 1 por vez)
-            if(e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT && !meteor.active){
+            if(evt.type == SDL_MOUSEBUTTONDOWN && evt.button.button == SDL_BUTTON_LEFT && !meteor.active){
                 meteor.active = 1;
                 int mouseX, mouseY;
                 Uint32 buttonState = SDL_GetMouseState(&mouseX, &mouseY);
