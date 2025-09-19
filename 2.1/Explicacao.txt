@@ -1,0 +1,8 @@
+Estou mantendo um padrão no estilo de programa.
+O programa mantém o foguete com tiro da 1.7.1
+Porém agora o tiro é com base na quantidade de clicks dados.
+    1 click   - Tiro falhou
+    2 clicks  - Tiro normal
+    3 clicks  - Tiro rápido
+    4 clicks  - Ultra tiro
+    5+ clicks - Sobrecarga, tiro não funciona.
