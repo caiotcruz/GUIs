@@ -197,7 +197,7 @@ int main(int argc, char* args[])
         SDL_RenderCopy(ren, rocketTex, &rocketSrc, &rocketDst);
 
         SDL_RenderPresent(ren);
-        SDL_Delay(16);
+        AUX_Delay(16);
     }
 
     SDL_DestroyTexture(rocketTex);

@@ -108,8 +108,7 @@ int main(int argc, char* args[])
         circleRGBA(ren, rocketX, rocketY+80, 40, 255, 255, 255, 255);
 
         SDL_RenderPresent(ren);
-
-        SDL_Delay(16);  // ~60 FPS
+        AUX_Delay(16);
     }
 
     /* FINALIZAÇÃO */

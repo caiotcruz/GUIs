@@ -16,3 +16,10 @@ int AUX_WaitEventTimeout(SDL_Event* evt, Uint32* ms) {
 
     return ret;
 }
+
+void AUX_Delay(Uint32 ms) {
+    Uint32 start = SDL_GetTicks();
+    while (SDL_GetTicks() - start < ms) {
+       
+    }
+}

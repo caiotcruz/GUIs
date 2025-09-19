@@ -159,7 +159,7 @@ int main(int argc, char* args[])
 
         SDL_RenderPresent(ren);
 
-        SDL_Delay(16); // ~60 FPS
+        AUX_Delay(16); 
     }
 
     SDL_DestroyRenderer(ren);
