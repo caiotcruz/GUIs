@@ -4,6 +4,5 @@
 #include <SDL2/SDL.h>
 
 int AUX_WaitEventTimeout(SDL_Event* evt, Uint32* ms);
-void AUX_Delay(Uint32 ms);
 
 #endif

@@ -48,6 +48,7 @@ int main(int argc, char* args[])
     /* EXECUÇÃO */
     while(!quit){
 
+        timeout = 16;
         // Necessário para sair sem crashar
         if (AUX_WaitEventTimeout(&evt, &timeout)){
             if(evt.type == SDL_QUIT) quit = 1;
@@ -108,7 +109,6 @@ int main(int argc, char* args[])
         circleRGBA(ren, rocketX, rocketY+80, 40, 255, 255, 255, 255);
 
         SDL_RenderPresent(ren);
-        AUX_Delay(16);
     }
 
     /* FINALIZAÇÃO */

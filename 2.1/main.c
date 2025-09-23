@@ -103,6 +103,7 @@ int main(int argc, char* args[])
 
     while(!quit){
         Uint32 currentTime = SDL_GetTicks();
+        timeout = 16;
 
         if (clickCount > 0 && currentTime - lastClickTimestamp > MULTICLICK_TIMEOUT) {
             if (clickCount >= 1) { 
@@ -335,7 +336,6 @@ int main(int argc, char* args[])
         SDL_RenderCopy(ren, rocketTex, &rocketSrc, &rocketDst);
 
         SDL_RenderPresent(ren);
-        AUX_Delay(16);
     }
 
     // Limpeza

@@ -76,6 +76,8 @@ int main(int argc, char* args[])
 
     while(!quit){
 
+        timeout = 16;
+
         if (AUX_WaitEventTimeout(&evt, &timeout)) {
             if(evt.type == SDL_QUIT) quit = 1;
 
@@ -197,7 +199,6 @@ int main(int argc, char* args[])
         SDL_RenderCopy(ren, rocketTex, &rocketSrc, &rocketDst);
 
         SDL_RenderPresent(ren);
-        AUX_Delay(16);
     }
 
     SDL_DestroyTexture(rocketTex);
