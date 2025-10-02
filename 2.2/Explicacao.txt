@@ -1,0 +1,4 @@
+Estou mantendo um padrão no estilo de programa.
+O programa mantém o foguete com tiro da 2.1, com clicks multiplos.
+Agora é possível arrastar o foguete, pressionando o botão esquerdo do mouse nele e arrastando.
+Ao apertar ESC, o dragging é cancelado e o foguete volta para a posição anterior.
