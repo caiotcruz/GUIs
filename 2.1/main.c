@@ -94,6 +94,8 @@ int main(int argc, char* args[])
 
     int clickCount = 0;
     Uint32 lastClickTimestamp = 0;
+     int firstClickX = 0;
+    int firstClickY = 0;
 
     int quit = 0;
     SDL_Event evt;
@@ -116,21 +118,42 @@ int main(int argc, char* args[])
             clickCount = 0;
         }
 
-        if (AUX_WaitEventTimeout(&evt, &timeout)) {
+        while (AUX_WaitEventTimeout(&evt, &timeout)) {
             if(evt.type == SDL_QUIT) quit = 1;
 
-            if (evt.type == SDL_MOUSEBUTTONDOWN && evt.button.button == SDL_BUTTON_LEFT) {                
+            if (evt.type == SDL_MOUSEBUTTONDOWN && evt.button.button == SDL_BUTTON_LEFT) {
                 if (clickCount == 0) {
                     clickCount = 1;
                     lastClickTimestamp = SDL_GetTicks();
+                    firstClickX = evt.button.x;
+                    firstClickY = evt.button.y;
                 } else {
-                    clickCount++;
-                    lastClickTimestamp = SDL_GetTicks();
+                    int currentClickX = evt.button.x;
+                    int currentClickY = evt.button.y;
+
+                    // Verifica se o novo clique está no local EXATO do primeiro
+                    if (currentClickX == firstClickX && currentClickY == firstClickY) {
+                        // Se estiver, continua a sequência
+                        clickCount++;
+                        lastClickTimestamp = SDL_GetTicks();
+                    } else {
+                        // Se não estiver, a sequência é quebrada.
+                        SDL_Event user_event;
+                        SDL_zero(user_event);
+                        user_event.type = SDL_USEREVENT;
+                        user_event.user.code = clickCount;
+                        SDL_PushEvent(&user_event);
+
+                        // E inicia uma nova sequência com o clique atual
+                        clickCount = 1;
+                        lastClickTimestamp = SDL_GetTicks();
+                        firstClickX = currentClickX;
+                        firstClickY = currentClickY;
+                    }
                 }
             }
             
             if (evt.type == SDL_USEREVENT) {
-                //Procura um tiro invativo para disparar
                 int shoot_index = -1;
                 for (int i = 0; i < MAX_SHOOTS; i++) {
                     if (!shoots[i].active) {
@@ -139,44 +162,35 @@ int main(int argc, char* args[])
                     }
                 }
 
-                // Se encontrou um tiro disponível
                 if (shoot_index != -1) {
                     int n_clicks = evt.user.code;
-                    int mouseX, mouseY;
-                    SDL_GetMouseState(&mouseX, &mouseY);
 
-                    //Usar o índice do array encontrado
                     shoots[shoot_index].active = 1;
-                    shoots[shoot_index].y = mouseY;
+                    shoots[shoot_index].y = firstClickY; // Usa a posição Y do primeiro clique
                     shoots[shoot_index].x = SCREEN_WIDTH + 50;
                     shoots[shoot_index].frame = 0;
                     shoots[shoot_index].frameTime = 0.0f;
                     shoots[shoot_index].isFailShoot = 0;
                     shoots[shoot_index].lifeTime = 0.0f;
-                    
+
                     if (n_clicks == 1){
-                        //Tiro falhou
-                        shoots[shoot_index].isFailShoot = 1; 
+                        shoots[shoot_index].isFailShoot = 1;
                         shoots[shoot_index].speed = 300;
                         shoots[shoot_index].scale = 2.0f;
                         shoots[shoot_index].lifeTime = 0.8f;
                     }
                     else if (n_clicks == 2) {
-                        //Tiro normal
                         shoots[shoot_index].speed = 400;
                         shoots[shoot_index].scale = 2.5f;
                     } else if (n_clicks == 3) {
-                        //Tiro rápido
                         shoots[shoot_index].speed = 650;
                         shoots[shoot_index].scale = 3.5f;
                     } else if (n_clicks == 4) {
-                        //Super tiro
                         shoots[shoot_index].speed = 900;
                         shoots[shoot_index].scale = 10.5f;
                     }
                     else if (n_clicks >= 5) {
-                        //Sobrecarga
-                        shoots[shoot_index].isFailShoot = 1; 
+                        shoots[shoot_index].isFailShoot = 1;
                         shoots[shoot_index].speed = 300;
                         shoots[shoot_index].scale = 2.0f;
                         shoots[shoot_index].lifeTime = 0.8f;
@@ -184,6 +198,7 @@ int main(int argc, char* args[])
                 }
             }
         }
+
         
         float deltaTime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
