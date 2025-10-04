@@ -100,7 +100,8 @@ int main(int argc, char* args[])
     Uint32 lastClickTimestamp = 0;
     int firstClickX = 0;
     int firstClickY = 0;
-    
+    bool mouseMovedSinceLastClick = false;
+
     // Variáveis para o arrasto
     int isDragging = 0;
     int isClickOnRocket = 0;
@@ -145,6 +146,12 @@ int main(int argc, char* args[])
 
         while (AUX_WaitEventTimeout(&evt, &timeout)) {
             if(evt.type == SDL_QUIT) quit = 1;
+
+            if (evt.type == SDL_MOUSEMOTION) {
+                if (clickCount > 0) {
+                    mouseMovedSinceLastClick = true;
+                }
+            }
             
             if (evt.type == SDL_MOUSEBUTTONDOWN && evt.button.button == SDL_BUTTON_LEFT) {
                 int mouseX = evt.button.x;
@@ -163,6 +170,7 @@ int main(int argc, char* args[])
                     lastClickTimestamp = SDL_GetTicks();
                     firstClickX = mouseX;
                     firstClickY = mouseY;
+                    mouseMovedSinceLastClick = false; 
                 } else {
                     if (mouseX == firstClickX && mouseY == firstClickY) {
                         clickCount++;
@@ -180,6 +188,7 @@ int main(int argc, char* args[])
                         lastClickTimestamp = SDL_GetTicks();
                         firstClickX = mouseX;
                         firstClickY = mouseY;
+                        mouseMovedSinceLastClick = false;
                     }
                 }
             }

@@ -140,7 +140,7 @@ int main(int argc, char* args[])
                     int currentClickX = evt.button.x;
                     int currentClickY = evt.button.y;
 
-                    // Verifica se o novo clique está no local EXATO do primeiro
+                    // Verifica se não teve arrasto
                     if (!mouseMovedSinceLastClick  && currentClickX == firstClickX && currentClickY == firstClickY) {
                         // Se estiver, continua a sequência
                         clickCount++;
