@@ -94,8 +94,9 @@ int main(int argc, char* args[])
 
     int clickCount = 0;
     Uint32 lastClickTimestamp = 0;
-     int firstClickX = 0;
+    int firstClickX = 0;
     int firstClickY = 0;
+    bool mouseMovedSinceLastClick = false;
 
     int quit = 0;
     SDL_Event evt;
@@ -121,18 +122,26 @@ int main(int argc, char* args[])
         while (AUX_WaitEventTimeout(&evt, &timeout)) {
             if(evt.type == SDL_QUIT) quit = 1;
 
+            if (evt.type == SDL_MOUSEMOTION) {
+                if (clickCount > 0) {
+                    mouseMovedSinceLastClick = true;
+                }
+            }
+
             if (evt.type == SDL_MOUSEBUTTONDOWN && evt.button.button == SDL_BUTTON_LEFT) {
                 if (clickCount == 0) {
                     clickCount = 1;
                     lastClickTimestamp = SDL_GetTicks();
                     firstClickX = evt.button.x;
                     firstClickY = evt.button.y;
+
+                    mouseMovedSinceLastClick = false; 
                 } else {
                     int currentClickX = evt.button.x;
                     int currentClickY = evt.button.y;
 
                     // Verifica se o novo clique está no local EXATO do primeiro
-                    if (currentClickX == firstClickX && currentClickY == firstClickY) {
+                    if (!mouseMovedSinceLastClick  && currentClickX == firstClickX && currentClickY == firstClickY) {
                         // Se estiver, continua a sequência
                         clickCount++;
                         lastClickTimestamp = SDL_GetTicks();
@@ -149,6 +158,8 @@ int main(int argc, char* args[])
                         lastClickTimestamp = SDL_GetTicks();
                         firstClickX = currentClickX;
                         firstClickY = currentClickY;
+
+                        mouseMovedSinceLastClick = false;
                     }
                 }
             }
